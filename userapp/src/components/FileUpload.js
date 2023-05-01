@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState, useEffect } from "react";
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
@@ -23,6 +24,35 @@ export default function UploadVideos() {
       setOpen(true);
     };
 
+
+    const handleFileInputChange = (event) => {
+      // setSelectedFile(event.target.files[0]);
+      console.log(event.target.files[0])
+      const data = new FormData();
+      data.append('file', event.target.files[0]);
+      data.append('filename',"uplaodededmedia.jpg");
+      fetch('/upload', {
+        method: 'POST',
+        body: data,
+      }).then((response) => {
+        console.log(response)
+        // response.json().then((body) => {
+        //   this.setState({ imageURL: `http://5500:8000/${body.file}` });
+        // });
+      });
+
+    };
+  
+    const handleOpenF = () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.multiple = false;
+      input.onchange = handleFileInputChange;
+      input.click();
+    };
+
+
     React.useEffect(() => {
         const timer = setInterval(() => {
           progressRef.current();
@@ -33,7 +63,7 @@ export default function UploadVideos() {
         };
       }, []);
 
-
+    
       React.useEffect(() => {
         progressRef.current = () => {
           if (progress > 100) {
@@ -48,11 +78,7 @@ export default function UploadVideos() {
         };
       });
 
-
-
-
   return (
-
     
     <Box
     sx={{
@@ -79,17 +105,16 @@ export default function UploadVideos() {
   <CircularProgress color="inherit" />
 </Backdrop>
 
-    <Button  onClick={handleOpen}
+    <Button  onClick={handleOpenF}
     variant="contained" component="label"
         style={{
             width:'230px',
             height:'230px',
-
             marginTop:"100px"
         }}
     >
         Upload
-        <input hidden accept="image/*" multiple type="file" />
+
       </Button>
     </Paper>
   </Box>
