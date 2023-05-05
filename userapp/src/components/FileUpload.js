@@ -8,13 +8,26 @@ import Stack from '@mui/material/Stack';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
+import SendIcon from '@mui/icons-material/Send';
+import UploadIcon from '@mui/icons-material/Upload';
+
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 export default function UploadVideos() {
 
     const [open, setOpen] = React.useState(false);
     const [progress, setProgress] = React.useState(0);
     const [buffer, setBuffer] = React.useState(10);
-  
+    const [language, setLanguage] = React.useState('');
+
+    const handleChange = (event: SelectChangeEvent) => {
+      console.log(event.target.value)
+      setLanguage(event.target.value);
+    };
+
     const progressRef = React.useRef(() => {});
 
     const handleClose = () => {
@@ -24,34 +37,47 @@ export default function UploadVideos() {
       setOpen(true);
     };
 
-
     const handleFileInputChange = (event) => {
       // setSelectedFile(event.target.files[0]);
       console.log(event.target.files[0])
       const data = new FormData();
       data.append('file', event.target.files[0]);
-      data.append('filename',"uplaodededmedia.jpg");
-      fetch('/upload', {
+      data.append('filename',event.target.files[0].name);
+      
+      let api = '/upload' 
+      fetch(api, {
         method: 'POST',
         body: data,
       }).then((response) => {
         console.log(response)
-        // response.json().then((body) => {
-        //   this.setState({ imageURL: `http://5500:8000/${body.file}` });
-        // });
-      });
 
+      });
     };
-  
+
     const handleOpenF = () => {
       const input = document.createElement("input");
       input.type = "file";
-      input.accept = "image/*";
+      input.accept = "*";
       input.multiple = false;
       input.onchange = handleFileInputChange;
       input.click();
     };
 
+
+    const handleOpenDownload = () => {
+      fetch('/download')
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+        link.href = url;
+
+        link.setAttribute('download', 'converted-vide.mp4');
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+      });
+    };
 
     React.useEffect(() => {
         const timer = setInterval(() => {
@@ -79,7 +105,6 @@ export default function UploadVideos() {
       });
 
   return (
-    
     <Box
     sx={{
       display: 'flex',
@@ -87,34 +112,62 @@ export default function UploadVideos() {
       '& > :not(style)': {
         m: 10,
         width: 300,
-        height: 800,
+        height: 400,
+        marginLeft:'300px',
+        marginBottom:'300px'
       },
     }}
   >
 
-
- <Paper elevation={24} >
- <Box sx={{ width: '100%' }}>
-      <LinearProgress variant="buffer" value={progress} valueBuffer={buffer} />
-    </Box>
- <Backdrop
-  sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-  open={open}
-  onClick={handleClose}
->
-  <CircularProgress color="inherit" />
-</Backdrop>
+ <Paper elevation={10}  sx={{ marginLeft: '100px' , marginBottom:'100px' }} >
 
     <Button  onClick={handleOpenF}
+      variant="contained" component="label" 
+          style={{
+              width:'230px',
+              height:'230px',
+              marginTop:"90px"
+          }}  >
+
+       Click to Upload Videos
+
+      </Button>
+      <FormControl fullWidth
+    sx={{ width: '100%' , marginTop:"5%"}}
+   >
+ 
+  <InputLabel id="demo-simple-select-label">Select Laguage</InputLabel>
+ 
+  <Select
+    labelId="demo-simple-select-label"
+    id="demo-simple-select"
+    value={language}
+    label="Select Language"
+    onChange={handleChange}
+  >
+
+    <MenuItem value={"Mandarin"}>Mandarin</MenuItem>
+    <MenuItem value={"Hindi"}>Hindi</MenuItem>
+    <MenuItem value={"Spanish"}>Spanish</MenuItem>
+    <MenuItem value={"German"}>German</MenuItem>
+    <MenuItem value={"French"}>French</MenuItem>
+
+  </Select>
+</FormControl>
+    </Paper>
+
+
+<Paper elevation={10} >
+    <Button  onClick={handleOpenDownload}
     variant="contained" component="label"
         style={{
             width:'230px',
             height:'230px',
             marginTop:"100px"
-        }}
-    >
-        Upload
-
+ 
+        }}>
+        Download
+      
       </Button>
     </Paper>
   </Box>
